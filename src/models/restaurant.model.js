@@ -15,6 +15,10 @@ const restaurantSchema = new Schema(
       enum: ["veg", "non-veg", "both"],
       required: true,
     },
+    restaurant_description: {
+      type: String,
+      required: true,
+    },
   },
   {
     timestamps: true,

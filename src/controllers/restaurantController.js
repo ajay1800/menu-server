@@ -14,11 +14,12 @@ const registerRestaurant = asyncHandler(async (req, res) => {
     throw new ApiError(404, "User not found");
   }
 
-  const { restaurant_name, restaurant_type } = req.body;
+  const { restaurant_name, restaurant_type, restaurant_description } = req.body;
 
   const data = {
     restaurant_name,
     restaurant_type,
+    restaurant_description,
     user: userId,
   };
 
@@ -55,7 +56,7 @@ const getRestaurantFilters = asyncHandler(async (req, res) => {
 const updateRestaurant = asyncHandler(async (req, res) => {
   //* get id from query param
   const { id } = req.query;
-  const { restaurant_name, restaurant_type } = req.body;
+  const { restaurant_name, restaurant_type, restaurant_description } = req.body;
 
   const existedRestaurant = await Restaurant.findById(id);
 
@@ -66,6 +67,7 @@ const updateRestaurant = asyncHandler(async (req, res) => {
   const updatedData = {
     restaurant_name,
     restaurant_type,
+    restaurant_description,
   };
 
   const restaurant = await Restaurant.findByIdAndUpdate(id, updatedData);
