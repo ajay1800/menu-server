@@ -268,9 +268,11 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
       .cookie("accessToken", accessToken, options)
       .cookie("refreshToken", refreshToken, options)
       .json(
-        200,
-        { accessToken, refreshToken },
-        "Token generated successfully!"
+        new ApiResponse(
+          200,
+          { accessToken, refreshToken },
+          "Token generated successfully!"
+        )
       );
   } catch (err) {
     throw new ApiError(401, err?.message || "Invalid refresh token");
