@@ -192,6 +192,7 @@ const verifyLoginOTP = asyncHandler(async (req, res) => {
           accessToken,
           expires_in: unixTime,
           refreshToken,
+          loggedIn: true,
         },
         "User logged in successfully!"
       )
@@ -263,6 +264,8 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
       secure: true,
     };
 
+    const day = 24 * 60 * 60 * 1000;
+    const unixTime = Date.now() + day;
     return res
       .status(200)
       .cookie("accessToken", accessToken, options)
@@ -270,7 +273,11 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
       .json(
         new ApiResponse(
           200,
-          { accessToken, refreshToken },
+          {
+            accessToken,
+            expires_in: unixTime,
+            refreshToken,
+          },
           "Token generated successfully!"
         )
       );
