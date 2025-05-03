@@ -53,12 +53,6 @@ const getMenu = asyncHandler(async (req, res) => {
 
   const menu = await Menu.findOne({ restaurant_id: restaurant_id });
 
-  if (!menu) {
-    return res
-      .status(404)
-      .json(new ApiError(404, "Menu Not found please create new menu"));
-  }
-
   return res
     .status(200)
     .json(new ApiResponse(200, menu, "Menu Fetched Successfully!"));
