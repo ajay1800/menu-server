@@ -244,6 +244,12 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
       process.env.REFRESH_TOKEN_SECRET
     );
 
+    if (!decodedToken) {
+      return res
+        .status(401)
+        .json(new ApiError(401, "JWT Token expired, please login again."));
+    }
+
     //! get user from token id and check it is exist
     const user = await User.findById(decodedToken._id);
 
