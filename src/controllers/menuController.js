@@ -58,7 +58,7 @@ const getMenu = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, menu, "Menu Fetched Successfully!"));
 });
 
-const updateMenuItem = asyncHandler(async (req, res) => {
+const updateMenu = asyncHandler(async (req, res) => {
   const { id } = req.query;
 
   if (!id) {
@@ -75,7 +75,11 @@ const updateMenuItem = asyncHandler(async (req, res) => {
 
   const updateData = req.body;
 
-  const menu = await Menu.findByIdAndUpdate(id, updateData);
+  const menu = await Menu.findByIdAndUpdate(id, {
+    $push: {
+      menu: { $each: updateData },
+    },
+  });
 
   return res
     .status(200)
@@ -102,4 +106,109 @@ const deleteMenu = asyncHandler(async (req, res) => {
   return res.status(200).json(200, null, "Menu Deleted Successfully!");
 });
 
-export { createMenu, getMenu, updateMenuItem, deleteMenu };
+const getMenuItem = asyncHandler(async (req, res) => {
+  const { id, menu_id } = req.params;
+
+  // find menu array with id and menu item using menu id
+
+  const menu = await Menu.findById(id);
+
+  if (!menu) {
+    return res.status(404).json(new ApiError(404, "Menu no found!"));
+  }
+
+  const menuItem = menu.menu.id(menu_id);
+
+  if (!menuItem) {
+    return res.status(404).json(new ApiError(404, "Menu Item no found!"));
+  }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, menuItem, "Menu Item Fetched Successfully!"));
+});
+
+const updateMenuItem = asyncHandler(async (req, res) => {
+  const { id, menu_id } = req.params;
+  const updateItem = req.body;
+
+  const menu = await Menu.findById(id);
+
+  if (!menu) {
+    return res.status(404).json(new ApiError(404, "Menu not found!"));
+  }
+
+  const menuItem = menu.menu.id(menu_id);
+
+  if (!menuItem) {
+    return res.status(404).json(new ApiError(404, "Menu item is not found!"));
+  }
+
+  Object.assign(menuItem, updateItem);
+
+  await menu.save();
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, menu, "Menu Item Updated successfully!"));
+});
+
+const deleteMenuItem = asyncHandler(async (req, res) => {
+  const { id, menu_id } = req.params;
+
+  const menuData = await Menu.findById(id);
+
+  if (!menuData) {
+    return res.status(404).json(new ApiError(404, "Menu not found"));
+  }
+
+  const menuItem = menuData.menu.id(menu_id);
+
+  if (!menuItem) {
+    return res.status(404).json(new ApiError(404, "Menu item is not found"));
+  }
+
+  const deleteItem = await Menu.findByIdAndUpdate(
+    id,
+    { $pull: { menu: { _id: menu_id } } },
+    { new: true }
+  );
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(200, deleteItem, "Menu item is deleted successfully!")
+    );
+});
+
+const addMenuItem = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const itemData = req.body;
+
+  const menu = await Menu.findById(id);
+
+  if (!menu) {
+    return res.status(404).json(new ApiError(404, "Menu not found!"));
+  }
+
+  const addItem = await Menu.findByIdAndUpdate(
+    id,
+    { $push: { menu: itemData } },
+    { new: true }
+  );
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, addItem, "Menu item added successfully!"));
+});
+
+export {
+  createMenu,
+  getMenu,
+  updateMenu,
+  deleteMenu,
+  getMenuItem,
+  updateMenuItem,
+  deleteMenuItem,
+  addMenuItem,
+};
